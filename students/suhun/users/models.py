@@ -8,4 +8,4 @@ class User(models.Model):
     phone       = models.IntegerField(max_length=120)
 
     class Meta:
-        db_table : "users"
+        db_table = "users"
