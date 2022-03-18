@@ -6,7 +6,6 @@ from django.views import View
 from users.models import User
 
 
-
 class SignUpView(View):
     def post(self, request):
         try:
@@ -36,5 +35,3 @@ class SignUpView(View):
                 
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status=400)
-        
-        
