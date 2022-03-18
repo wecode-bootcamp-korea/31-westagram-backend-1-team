@@ -1,31 +1,38 @@
 import json , re
+
 from django.http import JsonResponse
 from django.views import View
+
 from .models import User
 
 class SignUpView(View):
-    def post(self, request):
+    def post(self, request): 
+        data = json.loads(request.body)
+        name            = data['name']
+        email           = data['email']
+        password        = data['password']
+        phone           = data['phone']
+        date_of_birth   = data['date_of_birth']
+        PASSWORD_CHECK  = '^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$'
+        EMAIL_CHECK     = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         try:
-            data = json.loads(request.body)
+            if User.objects.filter(email = email).exists():
+                return JsonResponse({"massage":"already registered."}, status=401)
             
-            email_check     = re.compile('/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/')
-            password_check  = re.compile('/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/')
+            if not re.match(EMAIL_CHECK, email): 
+                return JsonResponse({"massage":"Invalid e-mail format."}, status=401)
             
-            if data["email"] in User.objects.filter(email=data['email']):
-                return JsonResponse({"massage":"This email has already been registered."}, status=401)
-            else:
-                if email_check.match(data["email"]) == False: 
-                    return JsonResponse({"massage":"Invalid e-mail format."}, status=401)
-                elif password_check.match(data["password"]) == False:
-                    return JsonResponse({"massage":"Invalid password format."}, status=401)
-                else:
-                    User.objects.create(
-                        name            =  data["name"],
-                        email           =  data['email'],
-                        password        =  data['password'],
-                        phone           =  data['phone'],
-                        date_of_birth   =  data['date_of_birth']
+            if not re.match(PASSWORD_CHECK, password):
+                return JsonResponse({"massage":"Invalid password format."}, status=401)
+            
+            User.objects.create(
+                        name            =  name,
+                        email           =  email,
+                        password        =  password,
+                        phone           =  phone,
+                        date_of_birth   =  date_of_birth
                     )
-                return JsonResponse({'message':'sign up completed.'}, status=201)
+            return JsonResponse({'message':'SUCCESS'}, status=201)
+       
         except KeyError:
             return JsonResponse({'key_error'}, status=401)
