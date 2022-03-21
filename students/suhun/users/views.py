@@ -7,15 +7,16 @@ from .models import User
 
 class SignUpView(View):
     def post(self, request): 
-        data = json.loads(request.body)
-        name            = data['name']
-        email           = data['email']
-        password        = data['password']
-        phone           = data['phone']
-        date_of_birth   = data['date_of_birth']
-        PASSWORD_CHECK  = '^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$'
-        EMAIL_CHECK     = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-        try:
+        try: 
+            data = json.loads(request.body)
+            name            = data['name']
+            email           = data['email']
+            password        = data['password']
+            phone           = data['phone']
+            date_of_birth   = data['date_of_birth']
+            PASSWORD_CHECK  = '^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$'
+            EMAIL_CHECK     = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        
             if User.objects.filter(email = email).exists():
                 return JsonResponse({"massage":"already registered."}, status=401)
             
@@ -33,6 +34,5 @@ class SignUpView(View):
                         date_of_birth   =  date_of_birth
                     )
             return JsonResponse({'message':'SUCCESS'}, status=201)
-       
         except KeyError:
-            return JsonResponse({'key_error'}, status=401)
+            return JsonResponse({'message':'key_error'}, status=401)
