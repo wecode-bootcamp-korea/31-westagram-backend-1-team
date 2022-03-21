@@ -52,13 +52,10 @@ class SignInView(View):
             if not re.match(PASSWORD_RULE, password):
                 return JsonResponse ({'message' : 'INVALID_USER_PASSWORD'}, status = 400)
             
-            if not User.objects.filter(email=email).exists():
-                return JsonResponse({'message' : 'EMAIL_NOT_EXISTS'}, status = 400)
+            if not User.objects.filter(email = data['email'], password = data['password']).exists():
+                return JsonResponse({'message' : 'INVALID_USER'}, status = 401)
             
-            if User.objects.get(email=email).password != password:
-                return JsonResponse({'message' : 'PASSWORD_INCORRECT'}, status = 400)
-            
-            return JsonResponse({'message' : 'SUCCESS'}, status = 201)
+            return JsonResponse({'message' : 'LOGIN SUCCESS'}, status = 201)
                 
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)
