@@ -1,3 +1,4 @@
+import bcrypt
 import json
 import re
 
@@ -23,13 +24,13 @@ class SignUpView(View):
             if not re.match(password_form, data['password']):
                 return JsonResponse({'message':'PASSWORD FORM ERROR'}, status=400)
             
-            if User.objects.filter(email=email):
+            if User.objects.filter(email=email).exists():
                 return JsonResponse({'message':'ALREADY EXIST'}, status=400)
         
             User.objects.create(
                 name         = data['name'],
                 email        = email,
-                password     = password,
+                password     = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
                 phone_number = data['phone'],
             )
 
