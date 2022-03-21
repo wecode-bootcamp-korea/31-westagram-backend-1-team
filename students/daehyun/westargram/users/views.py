@@ -1,4 +1,4 @@
-import json, re
+import json, re, bcrypt
 
 from django.http import JsonResponse
 from django.views import View
@@ -25,10 +25,12 @@ class SignUpView(View):
             if not re.match(PASSWORD_RULE, password):
                 return JsonResponse ({'message' : 'INVALID_PASSWORD'}, status = 400)
             
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            
             User.objects.create(
                 name         = data['name'],
                 email        = email,
-                password     = password,
+                password     = hashed_password,
                 phone_number = data['phone_number']
             )
             return JsonResponse({'message' : 'SUCCESS'}, status = 201)
