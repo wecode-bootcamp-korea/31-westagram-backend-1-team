@@ -33,6 +33,6 @@ class SignUpView(View):
                         phone           =  phone,
                         date_of_birth   =  date_of_birth
                     )
-            return JsonResponse({'message':'SUCCESS'}, status=201)
+            return JsonResponse({'message':'success'}, status=201)
         except KeyError:
-            return JsonResponse({'message':'key_error'}, status=401)
+            return JsonResponse({'message':'keyerror'}, status=401)
