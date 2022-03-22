@@ -38,7 +38,7 @@ class SignUpView(View):
             return JsonResponse({'message':'keyerror'}, status=401)
 
 
-class SigninView(View):    
+class SignInView(View):    
     def post(self,request):
         try:
             data = json.loads(request.body)
