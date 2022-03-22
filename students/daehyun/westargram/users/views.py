@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views import View
 
 from users.models import User
-from my_settings import SECRET_KEY
+from my_settings import SECRET_KEY, ALGORITHM
 
 class SignUpView(View):
     def post(self, request):
@@ -59,7 +59,7 @@ class SignInView(View):
             
             member = User.objects.get(email = email)
             if bcrypt.checkpw(password.encode('utf-8'), member.password.encode('utf-8')):
-                token = jwt.encode({'user_id' : member.id}, SECRET_KEY, algorithm = "HS256")
+                token = jwt.encode({'user_id' : member.id}, SECRET_KEY, algorithm = ALGORITHM)
             
             return JsonResponse({'token' : token}, status = 200)
         
