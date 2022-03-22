@@ -48,15 +48,15 @@ class SigninView(View):
             data = json.loads(request.body)
             email          = data["email"]
             input_password = data["password"]
-            user_id = User.objects.get(email= email).id
+            user = User.objects.get(email= email)
             
-            checkpw_input_db = bcrypt.checkpw(input_password.encode('utf-8'), User.objects.get(email= email).password.encode('utf-8') )
+            checkpw_input_db = bcrypt.checkpw(input_password.encode('utf-8'), user.password.encode('utf-8') )
 
-            if not User.objects.filter(email=email).exists() :
+            if not user:
                 return JsonResponse( {'meassage' : 'INVALID EMAIL.'}, status = 401)        
             if not checkpw_input_db:
                 return JsonResponse( {'message' : 'INVALID PASSWORD.' } , status = 401)
-            new_token        = jwt.encode( {"user": user_id } , settings.SECRET_KEY , algorithm= settings.ALGORITHM)
+            new_token        = jwt.encode( {"user": user.id } , settings.SECRET_KEY , algorithm= settings.ALGORITHM)
             return JsonResponse({"token": new_token }, status = 200)
  
         except KeyError:
