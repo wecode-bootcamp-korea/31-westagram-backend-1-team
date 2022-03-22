@@ -1,10 +1,10 @@
-import json, re, bcrypt
+import json, re, bcrypt, jwt
 
 from django.http import JsonResponse
 from django.views import View
 
 from users.models import User
-
+from my_settings import SECRET_KEY
 
 class SignUpView(View):
     def post(self, request):
@@ -54,10 +54,17 @@ class SignInView(View):
             if not re.match(PASSWORD_RULE, password):
                 return JsonResponse ({'message' : 'INVALID_USER_PASSWORD'}, status = 400)
             
-            if not User.objects.filter(email = data['email'], password = data['password']).exists():
-                return JsonResponse({'message' : 'INVALID_USER'}, status = 401)
+            if not User.objects.filter(email=email).exists():
+                return JsonResponse({'message' : 'EMAIL_NOT_EXISTS'}, status = 401)
             
-            return JsonResponse({'message' : 'LOGIN SUCCESS'}, status = 201)
-                
+            member = User.objects.get(email = email)
+            if bcrypt.checkpw(password.encode('utf-8'), member.password.encode('utf-8')):
+                token = jwt.encode({'user_id' : member.id}, SECRET_KEY, algorithm = "HS256")
+            
+            return JsonResponse({'token' : token}, status = 200)
+        
+        except UnboundLocalError:
+            return JsonResponse({'message' : 'UNBOUND_LOCAL_ERROR'}, status = 400)
+                    
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)
