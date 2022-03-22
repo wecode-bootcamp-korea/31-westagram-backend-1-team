@@ -19,13 +19,13 @@ class SignUpView(View):
             EMAIL_CHECK     = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
         
             if User.objects.filter(email = email).exists():
-                return JsonResponse({"massage":"already registered."}, status=401)
+                return JsonResponse({"massage":"REGISTERED."}, status=401)
             
             if not re.match(EMAIL_CHECK, email): 
-                return JsonResponse({"massage":"Invalid e-mail format."}, status=401)
+                return JsonResponse({"massage":"INVALID_EMAIL."}, status=401)
             
             if not re.match(PASSWORD_CHECK, password):
-                return JsonResponse({"massage":"Invalid password format."}, status=401) 
+                return JsonResponse({"massage":"INVALID_PASSWORD."}, status=401) 
             
             hashed_password      = bcrypt.hashpw(password.encode('utf-8') , bcrypt.gensalt()).decode('utf-8')
             User.objects.create(
@@ -37,7 +37,7 @@ class SignUpView(View):
                     )
             return JsonResponse({'message':'SUCCESS'}, status=201)
         except KeyError:
-            return JsonResponse({'message':'KEYERROR'}, status=401)
+            return JsonResponse({'message':'KEY_ERROR'}, status=401)
 
 
 class SignInView(View):    
