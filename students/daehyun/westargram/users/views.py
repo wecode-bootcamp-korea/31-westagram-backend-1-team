@@ -1,10 +1,11 @@
+from http.client import NOT_EXTENDED
 import json, re, bcrypt, jwt
 
 from django.http import JsonResponse
 from django.views import View
+from django.conf import settings
 
 from users.models import User
-from my_settings import SECRET_KEY, ALGORITHM
 
 class SignUpView(View):
     def post(self, request):
@@ -54,17 +55,15 @@ class SignInView(View):
             if not re.match(PASSWORD_RULE, password):
                 return JsonResponse ({'message' : 'INVALID_USER_PASSWORD'}, status = 400)
             
-            if not User.objects.filter(email=email).exists():
-                return JsonResponse({'message' : 'EMAIL_NOT_EXISTS'}, status = 401)
-            
             member = User.objects.get(email = email)
-            if bcrypt.checkpw(password.encode('utf-8'), member.password.encode('utf-8')):
-                token = jwt.encode({'user_id' : member.id}, SECRET_KEY, algorithm = ALGORITHM)
+            if not bcrypt.checkpw(password.encode('utf-8'), member.password.encode('utf-8')):
+                return JsonResponse({'message' : 'INVALID_USER'}, status = 401)
             
+            token = jwt.encode({'user_id' : member.id}, settings.SECRET_KEY, algorithm = settings.ALGORITHM)
             return JsonResponse({'token' : token}, status = 200)
         
-        except UnboundLocalError:
-            return JsonResponse({'message' : 'UNBOUND_LOCAL_ERROR'}, status = 400)
+        except User.DoesNotExist:
+            return JsonResponse({'message' : 'EMAIL_NOT_EXIST'}, status = 401)
                     
         except KeyError:
             return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)
