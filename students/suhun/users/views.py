@@ -27,12 +27,11 @@ class SignUpView(View):
             if not re.match(PASSWORD_CHECK, password):
                 return JsonResponse({"massage":"Invalid password format."}, status=401) 
             
-            hashed_password      = bcrypt.hashpw( password.encode('utf-8') , bcrypt.gensalt() )
-            decode_hash_password = hashed_password.decode('utf-8')
+            hashed_password      = bcrypt.hashpw(password.encode('utf-8') , bcrypt.gensalt()).decode('utf-8')
             User.objects.create(
                         name            =  name,
                         email           =  email,
-                        password        =  decode_hash_password,
+                        password        =  hashed_password,
                         phone           =  phone,
                         date_of_birth   =  date_of_birth
                     )
