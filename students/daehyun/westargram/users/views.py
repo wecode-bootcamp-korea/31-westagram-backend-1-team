@@ -1,4 +1,3 @@
-from http.client import NOT_EXTENDED
 import json, re, bcrypt, jwt
 
 from django.http import JsonResponse
@@ -55,12 +54,16 @@ class SignInView(View):
             if not re.match(PASSWORD_RULE, password):
                 return JsonResponse ({'message' : 'INVALID_USER_PASSWORD'}, status = 400)
             
-            member = User.objects.get(email = email)
-            if not bcrypt.checkpw(password.encode('utf-8'), member.password.encode('utf-8')):
+            user = User.objects.get(email = email)
+            
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({'message' : 'INVALID_USER'}, status = 401)
             
-            token = jwt.encode({'user_id' : member.id}, settings.SECRET_KEY, algorithm = settings.ALGORITHM)
-            return JsonResponse({'token' : token}, status = 200)
+            token = jwt.encode({'user_id' : user.id}, settings.SECRET_KEY, algorithm = settings.ALGORITHM)
+            return JsonResponse({
+                'message' : 'SUCCESS',
+                'token' : token,
+                }, status = 200)
         
         except User.DoesNotExist:
             return JsonResponse({'message' : 'EMAIL_NOT_EXIST'}, status = 401)
